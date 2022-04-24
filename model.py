@@ -13,6 +13,7 @@ class Linear_QNet(nn.Module):
     def forward(self, x):
         x = F.relu(self.linear1(x))
         x = self.linear2(x)
+        print("x=",x)
         return x
 
     def save(self, file_name='model.pth'):
@@ -34,16 +35,20 @@ class QTrainer:
 
     def train_step(self, state, action, reward, next_state, done):
         state = torch.tensor(state, dtype=torch.float)
+        print("state in train step",state)
         next_state = torch.tensor(next_state, dtype=torch.float)
         action = torch.tensor(action, dtype=torch.long)
+        print("action in train step",action)
         reward = torch.tensor(reward, dtype=torch.float)
         # (n, x)
 
         if len(state.shape) == 1:
             # (1, x)
             state = torch.unsqueeze(state, 0)
+            print("state unsqueezed",state)
             next_state = torch.unsqueeze(next_state, 0)
             action = torch.unsqueeze(action, 0)
+            print("action unsqueezed",action)
             reward = torch.unsqueeze(reward, 0)
             done = (done, )
 
@@ -51,6 +56,7 @@ class QTrainer:
         pred = self.model(state)
 
         target = pred.clone()
+        print("target=",target)
         for idx in range(len(done)):
             Q_new = reward[idx]
             if not done[idx]:
